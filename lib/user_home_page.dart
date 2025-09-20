@@ -4,6 +4,9 @@ import 'auth_service.dart';
 import 'package:provider/provider.dart';
 import 'user_profile_form.dart';
 import 'find_mechanics_page.dart';
+import 'user_service_history_page.dart';
+import 'user_my_requests_page.dart';
+import 'user_ratings_page.dart';
 import 'theme/app_theme.dart';
 
 class UserHomePage extends StatefulWidget {
@@ -364,7 +367,7 @@ class _UserHomePageState extends State<UserHomePage>
               'View past services',
               Icons.history,
               AppTheme.primaryColor,
-              () => _showComingSoon(context, 'Service History'),
+              () => _navigateToServiceHistory(context),
             ),
             _buildDashboardCard(
               context,
@@ -373,7 +376,7 @@ class _UserHomePageState extends State<UserHomePage>
               'Track your requests',
               Icons.request_page,
               AppTheme.secondaryColor,
-              () => _showComingSoon(context, 'My Requests'),
+              () => _navigateToMyRequests(context),
             ),
             _buildDashboardCard(
               context,
@@ -382,7 +385,7 @@ class _UserHomePageState extends State<UserHomePage>
               'Rate mechanics',
               Icons.star,
               AppTheme.accentColor,
-              () => _showComingSoon(context, 'Ratings'),
+              () => _navigateToRatings(context),
             ),
             _buildDashboardCard(
               context,
@@ -496,6 +499,33 @@ class _UserHomePageState extends State<UserHomePage>
       context,
       MaterialPageRoute(
         builder: (context) => const FindMechanicsPage(),
+      ),
+    );
+  }
+
+  void _navigateToServiceHistory(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const UserServiceHistoryPage(),
+      ),
+    );
+  }
+
+  void _navigateToMyRequests(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const UserMyRequestsPage(),
+      ),
+    );
+  }
+
+  void _navigateToRatings(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const UserRatingsPage(),
       ),
     );
   }
