@@ -3,6 +3,12 @@ import 'auth_service.dart';
 import 'package:provider/provider.dart';
 import 'mechanic_profile_form.dart';
 import 'mechanic_requests_page.dart';
+import 'mechanic_ratings_page.dart';
+import 'mechanic_earnings_page.dart';
+import 'mechanic_service_history_page.dart';
+import 'mechanic_my_requests_page.dart';
+
+import 'mechanic_find_users_page.dart';
 import 'theme/app_theme.dart';
 
 class MechanicHomePage extends StatefulWidget {
@@ -51,11 +57,21 @@ class _MechanicHomePageState extends State<MechanicHomePage>
     super.dispose();
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Refresh all data
+          setState(() {});
+        },
+        backgroundColor: AppTheme.primaryColor,
+        child: const Icon(Icons.refresh, color: Colors.white),
+      ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: AppTheme.backgroundGradient,
@@ -148,11 +164,6 @@ class _MechanicHomePageState extends State<MechanicHomePage>
                   ),
                   Row(
                     children: [
-                      _buildActionButton(
-                        Icons.notifications_outlined,
-                        () => _showComingSoon(context, 'Notifications'),
-                      ),
-                      const SizedBox(width: 12),
                       _buildActionButton(
                         Icons.person_outline,
                         () => _navigateToProfile(context),
@@ -379,10 +390,10 @@ class _MechanicHomePageState extends State<MechanicHomePage>
             Expanded(
               child: _buildQuickActionCard(
                 context,
-                'Set Availability',
-                Icons.schedule,
+                'Find Customers',
+                Icons.people,
                 AppTheme.secondaryGradient,
-                () => _showComingSoon(context, 'Set Availability'),
+                () => _navigateToFindUsers(context),
               ),
             ),
           ],
@@ -461,25 +472,25 @@ class _MechanicHomePageState extends State<MechanicHomePage>
           crossAxisCount: 2,
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
-          childAspectRatio: 1.2,
+          childAspectRatio: 1.1,
           children: [
             _buildDashboardCard(
               context,
-              Icons.car_repair,
-              'Active Jobs',
-              'Manage ongoing work',
-              Icons.car_repair,
+              Icons.history,
+              'Service History',
+              'View past services',
+              Icons.history,
               AppTheme.primaryColor,
-              () => _showComingSoon(context, 'Active Jobs'),
+              () => _navigateToServiceHistory(context),
             ),
             _buildDashboardCard(
               context,
-              Icons.schedule,
-              'Schedule',
-              'View your calendar',
-              Icons.schedule,
+              Icons.request_page,
+              'My Requests',
+              'Track your requests',
+              Icons.request_page,
               AppTheme.secondaryColor,
-              () => _showComingSoon(context, 'Schedule'),
+              () => _navigateToMyRequests(context),
             ),
             _buildDashboardCard(
               context,
@@ -488,16 +499,16 @@ class _MechanicHomePageState extends State<MechanicHomePage>
               'Track your income',
               Icons.payments,
               AppTheme.accentColor,
-              () => _showComingSoon(context, 'Earnings'),
+              () => _navigateToEarnings(context),
             ),
             _buildDashboardCard(
               context,
-              Icons.analytics,
-              'Analytics',
-              'View performance',
-              Icons.analytics,
-              AppTheme.warningColor,
-              () => _showComingSoon(context, 'Analytics'),
+              Icons.star,
+              'My Ratings',
+              'View customer reviews',
+              Icons.star,
+              AppTheme.accentColor,
+              () => _navigateToRatings(context),
             ),
           ],
         ),
@@ -597,6 +608,51 @@ class _MechanicHomePageState extends State<MechanicHomePage>
     );
   }
 
+  void _navigateToRatings(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MechanicRatingsPage(),
+      ),
+    );
+  }
+
+  void _navigateToEarnings(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MechanicEarningsPage(),
+      ),
+    );
+  }
+
+  void _navigateToServiceHistory(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MechanicServiceHistoryPage(),
+      ),
+    );
+  }
+
+  void _navigateToMyRequests(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MechanicMyRequestsPage(),
+      ),
+    );
+  }
+
+  void _navigateToFindUsers(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MechanicFindUsersPage(),
+      ),
+    );
+  }
+
   void _showLogoutDialog(BuildContext context, AuthService authService) {
     showDialog(
       context: context,
@@ -620,16 +676,4 @@ class _MechanicHomePageState extends State<MechanicHomePage>
     );
   }
 
-  void _showComingSoon(BuildContext context, String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$feature feature coming soon!'),
-        backgroundColor: AppTheme.secondaryColor,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-    );
-  }
 }

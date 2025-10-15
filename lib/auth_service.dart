@@ -7,6 +7,7 @@ class AuthService with ChangeNotifier {
   User? _currentUser;
   String? _currentUserRole;
   bool _isLoading = true;
+  String? _pendingRoleForOAuth;
 
   AuthService() {
     _getCurrentUser();
@@ -33,6 +34,15 @@ class AuthService with ChangeNotifier {
 
         if (profile != null) {
           _currentUserRole = profile['role'];
+        } else if (_pendingRoleForOAuth != null) {
+          // First-time OAuth login: create profile with the pending role
+          await _supabase.from('profiles').insert({
+            'id': _currentUser!.id,
+            'email': _currentUser!.email,
+            'role': _pendingRoleForOAuth,
+          });
+          _currentUserRole = _pendingRoleForOAuth;
+          _pendingRoleForOAuth = null;
         }
       }
     } catch (e) {
@@ -126,6 +136,27 @@ class AuthService with ChangeNotifier {
       print('User signed out successfully');
     } catch (e) {
       print('Error signing out: $e');
+    }
+  }
+
+  Future<String?> signInWithGoogle({String? role}) async {
+    try {
+      // Keep track of intended role during OAuth flow for first-time users
+      _pendingRoleForOAuth = role;
+      await _supabase.auth.signInWithOAuth(
+        OAuthProvider.google,
+        // You can configure deep-links/redirects in your Supabase project settings
+        // and optionally set redirectTo here if needed.
+      );
+      // The onAuthStateChange listener will pick up the session and call _getCurrentUser,
+      // which will create the profile with the pending role if needed.
+      return null;
+    } on AuthException catch (e) {
+      _pendingRoleForOAuth = null;
+      return e.message;
+    } catch (e) {
+      _pendingRoleForOAuth = null;
+      return 'An unexpected error occurred';
     }
   }
 }

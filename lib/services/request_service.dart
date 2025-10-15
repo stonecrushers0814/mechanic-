@@ -1,6 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/request_model.dart';
-import '../models/mechanic_list_item.dart';
 
 class RequestService {
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -13,10 +12,7 @@ class RequestService {
           .contains('mechanic_ids', [mechanicId])
           .order('created_at', ascending: false);
 
-      if (requestsData != null) {
-        return requestsData.map((map) => ServiceRequest.fromMap(map)).toList();
-      }
-      return [];
+      return requestsData.map((map) => ServiceRequest.fromMap(map)).toList();
     } catch (e) {
       print('Error getting mechanic requests: $e');
       return [];
@@ -39,6 +35,40 @@ class RequestService {
           .from('service_requests')
           .update(updates)
           .eq('id', requestId);
+
+      // Create notification for user when mechanic accepts request
+      if (status == 'accepted' && acceptedMechanicId != null) {
+        try {
+          // Get the request details to create notification
+          final requestData = await _supabase
+              .from('service_requests')
+              .select('user_id, user_name, vehicle_type, vehicle_model')
+              .eq('id', requestId)
+              .single();
+
+          // Get mechanic details
+          final mechanicData = await _supabase
+              .from('mechanic_profiles')
+              .select('name')
+              .eq('user_id', acceptedMechanicId)
+              .single();
+
+          final mechanicName = mechanicData['name'] as String? ?? 'A mechanic';
+          final vehicleInfo = '${requestData['vehicle_type']} ${requestData['vehicle_model']}';
+
+          // Create notification for the user
+          await createNotification(
+            userId: requestData['user_id'] as String,
+            title: 'Request Accepted!',
+            message: '$mechanicName has accepted your service request for $vehicleInfo. They will contact you soon!',
+            type: 'request_accepted',
+            relatedRequestId: requestId,
+          );
+        } catch (notificationError) {
+          print('Error creating acceptance notification: $notificationError');
+          // Don't rethrow here to avoid breaking the main flow
+        }
+      }
     } catch (e) {
       print('Error updating request status: $e');
       rethrow;

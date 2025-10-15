@@ -85,6 +85,10 @@ class _LoginPageState extends State<LoginPage>
                     // Login Form
                     _buildLoginForm(),
                     const SizedBox(height: 32),
+                    _buildOrDivider(),
+                    const SizedBox(height: 16),
+                    _buildGoogleButton(),
+                    const SizedBox(height: 32),
                     // Sign Up Link
                     _buildSignUpLink(),
                     const SizedBox(height: 20),
@@ -93,6 +97,45 @@ class _LoginPageState extends State<LoginPage>
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrDivider() {
+    return Row(
+      children: [
+        Expanded(child: Divider(color: Colors.grey[300])),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12),
+          child: Text('OR'),
+        ),
+        Expanded(child: Divider(color: Colors.grey[300])),
+      ],
+    );
+  }
+
+  Widget _buildGoogleButton() {
+    return SizedBox(
+      height: 52,
+      child: OutlinedButton.icon(
+        onPressed: _isLoading ? null : _signInWithGoogle,
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: Colors.grey[300]!),
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        icon: Image.asset(
+          'assets/google.png',
+          width: 20,
+          height: 20,
+          errorBuilder: (_, __, ___) => const Icon(Icons.login, size: 18),
+        ),
+        label: const Text(
+          'Continue with Google',
+          style: TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -389,6 +432,22 @@ class _LoginPageState extends State<LoginPage>
         // Navigation is handled by the App widget based on auth state
       }
     }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final error = await authService.signInWithGoogle(role: widget.role);
+
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+      _errorMessage = error;
+    });
   }
 
 }

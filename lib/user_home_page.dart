@@ -8,6 +8,7 @@ import 'user_service_history_page.dart';
 import 'user_my_requests_page.dart';
 import 'user_ratings_page.dart';
 import 'theme/app_theme.dart';
+import 'user_chatbot_page.dart';
 
 class UserHomePage extends StatefulWidget {
   const UserHomePage({super.key});
@@ -60,6 +61,7 @@ class _UserHomePageState extends State<UserHomePage>
     final authService = Provider.of<AuthService>(context);
 
     return Scaffold(
+      floatingActionButton: _buildChatFab(context),
       body: Container(
         decoration: const BoxDecoration(
           gradient: AppTheme.backgroundGradient,
@@ -98,6 +100,23 @@ class _UserHomePageState extends State<UserHomePage>
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildChatFab(BuildContext context) {
+    return FloatingActionButton.extended(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const UserChatbotPage(),
+          ),
+        );
+      },
+      icon: const Icon(Icons.chat_bubble_outline),
+      label: const Text('Quick Help'),
+      backgroundColor: AppTheme.primaryColor,
+      foregroundColor: Colors.white,
     );
   }
 
@@ -389,12 +408,12 @@ class _UserHomePageState extends State<UserHomePage>
             ),
             _buildDashboardCard(
               context,
-              Icons.support,
-              'Support',
-              'Get help & support',
-              Icons.support,
+              Icons.person,
+              'My Profile',
+              'View and edit profile',
+              Icons.person,
               AppTheme.warningColor,
-              () => _showComingSoon(context, 'Support'),
+              () => _navigateToProfile(context),
             ),
           ],
         ),
