@@ -10,6 +10,7 @@ import 'mechanic_my_requests_page.dart';
 
 import 'mechanic_find_users_page.dart';
 import 'theme/app_theme.dart';
+import 'map_sample.dart';
 
 class MechanicHomePage extends StatefulWidget {
   const MechanicHomePage({super.key});
@@ -509,6 +510,18 @@ class _MechanicHomePageState extends State<MechanicHomePage>
               Icons.star,
               AppTheme.accentColor,
               () => _navigateToRatings(context),
+            ),
+            _buildDashboardCard(
+              context,
+              Icons.map,
+              'Jobs Map',
+              'View nearby jobs',
+              Icons.map,
+              AppTheme.accentColor,
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MapSample()),
+              ),
             ),
           ],
         ),

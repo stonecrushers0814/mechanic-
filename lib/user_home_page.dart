@@ -9,6 +9,7 @@ import 'user_my_requests_page.dart';
 import 'user_ratings_page.dart';
 import 'theme/app_theme.dart';
 import 'user_chatbot_page.dart';
+import 'map_sample.dart';
 
 class UserHomePage extends StatefulWidget {
   const UserHomePage({super.key});
@@ -387,6 +388,18 @@ class _UserHomePageState extends State<UserHomePage>
               Icons.history,
               AppTheme.primaryColor,
               () => _navigateToServiceHistory(context),
+            ),
+            _buildDashboardCard(
+              context,
+              Icons.map,
+              'Nearby',
+              'View map',
+              Icons.map,
+              AppTheme.secondaryColor,
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MapSample()),
+              ),
             ),
             _buildDashboardCard(
               context,

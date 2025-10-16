@@ -5,7 +5,7 @@ import 'app.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'auth_service.dart';
 import 'theme/app_theme.dart';
-
+import 'map_sample.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
@@ -14,7 +14,7 @@ Future<void> main() async {
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
- 
+
   
   runApp(const MyApp());
 }

@@ -19,6 +19,7 @@ class _AppState extends State<App> {
   bool _checkingProfile = true;
   bool _userHasProfile = false;
   bool _mechanicHasProfile = false;
+  String? _lastCheckedUserId;
 
   @override
   void initState() {
@@ -76,6 +77,17 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return Consumer<AuthService>(
       builder: (context, authService, child) {
+        // Trigger profile re-check when the signed-in user changes
+        final currentUserId = authService.currentUser?.id;
+        if (currentUserId != _lastCheckedUserId && authService.currentUser != null && !_checkingProfile) {
+          _checkingProfile = true;
+          _userHasProfile = false;
+          _mechanicHasProfile = false;
+          _lastCheckedUserId = currentUserId;
+          // Schedule async check to avoid calling setState during build
+          Future.microtask(_checkProfiles);
+        }
+
         if (authService.isLoading || _checkingProfile) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
@@ -83,6 +95,10 @@ class _AppState extends State<App> {
         }
         
         if (authService.currentUser == null) {
+          // Reset cached state on sign out
+          _lastCheckedUserId = null;
+          _userHasProfile = false;
+          _mechanicHasProfile = false;
           return const RoleSelectionPage();
         }
         

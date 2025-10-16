@@ -1,13 +1,14 @@
 // lib/auth_service.dart
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AuthService with ChangeNotifier {
   final SupabaseClient _supabase = Supabase.instance.client;
   User? _currentUser;
   String? _currentUserRole;
   bool _isLoading = true;
-  String? _pendingRoleForOAuth;
 
   AuthService() {
     _getCurrentUser();
@@ -34,15 +35,6 @@ class AuthService with ChangeNotifier {
 
         if (profile != null) {
           _currentUserRole = profile['role'];
-        } else if (_pendingRoleForOAuth != null) {
-          // First-time OAuth login: create profile with the pending role
-          await _supabase.from('profiles').insert({
-            'id': _currentUser!.id,
-            'email': _currentUser!.email,
-            'role': _pendingRoleForOAuth,
-          });
-          _currentUserRole = _pendingRoleForOAuth;
-          _pendingRoleForOAuth = null;
         }
       }
     } catch (e) {
@@ -139,23 +131,67 @@ class AuthService with ChangeNotifier {
     }
   }
 
-  Future<String?> signInWithGoogle({String? role}) async {
+  Future<String?> signInWithGoogle({required String role}) async {
     try {
-      // Keep track of intended role during OAuth flow for first-time users
-      _pendingRoleForOAuth = role;
-      await _supabase.auth.signInWithOAuth(
-        OAuthProvider.google,
-        // You can configure deep-links/redirects in your Supabase project settings
-        // and optionally set redirectTo here if needed.
+      final googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+        // Needed on Android to ensure idToken is returned
+        serverClientId: dotenv.env['GOOGLE_WEB_CLIENT_ID'],
       );
-      // The onAuthStateChange listener will pick up the session and call _getCurrentUser,
-      // which will create the profile with the pending role if needed.
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        return 'Sign in was cancelled';
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final idToken = googleAuth.idToken;
+      final accessToken = googleAuth.accessToken;
+
+      if (idToken == null) {
+        return 'Missing Google ID token';
+      }
+
+      final AuthResponse response = await _supabase.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: accessToken,
+      );
+
+      _currentUser = response.user;
+
+      if (_currentUser == null) {
+        return 'Unable to sign in with Google';
+      }
+
+      // Ensure profile exists with role
+      final profile = await _supabase
+          .from('profiles')
+          .select('role, email')
+          .eq('id', _currentUser!.id)
+          .maybeSingle();
+
+      if (profile == null) {
+        await _supabase.from('profiles').insert({
+          'id': _currentUser!.id,
+          'email': _currentUser!.email,
+          'role': role,
+        });
+        _currentUserRole = role;
+      } else {
+        _currentUserRole = (profile['role'] as String?) ?? role;
+        if (profile['role'] == null) {
+          await _supabase
+              .from('profiles')
+              .update({'role': role})
+              .eq('id', _currentUser!.id);
+        }
+      }
+
+      notifyListeners();
       return null;
     } on AuthException catch (e) {
-      _pendingRoleForOAuth = null;
       return e.message;
     } catch (e) {
-      _pendingRoleForOAuth = null;
       return 'An unexpected error occurred';
     }
   }

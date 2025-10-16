@@ -85,8 +85,6 @@ class _SignupPageState extends State<SignupPage>
                     const SizedBox(height: 32),
                     // Signup Form
                     _buildSignupForm(),
-                    const SizedBox(height: 32),
-                    _buildOrDivider(),
                     const SizedBox(height: 16),
                     _buildGoogleButton(),
                     const SizedBox(height: 32),
@@ -98,45 +96,6 @@ class _SignupPageState extends State<SignupPage>
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOrDivider() {
-    return Row(
-      children: [
-        Expanded(child: Divider(color: Colors.grey[300])),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12),
-          child: Text('OR'),
-        ),
-        Expanded(child: Divider(color: Colors.grey[300])),
-      ],
-    );
-  }
-
-  Widget _buildGoogleButton() {
-    return SizedBox(
-      height: 52,
-      child: OutlinedButton.icon(
-        onPressed: _isLoading ? null : _signUpWithGoogle,
-        style: OutlinedButton.styleFrom(
-          side: BorderSide(color: Colors.grey[300]!),
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        icon: Image.asset(
-          'assets/google.png',
-          width: 20,
-          height: 20,
-          errorBuilder: (_, __, ___) => const Icon(Icons.login, size: 18),
-        ),
-        label: const Text(
-          'Continue with Google',
-          style: TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -495,6 +454,41 @@ class _SignupPageState extends State<SignupPage>
     );
   }
 
+  Widget _buildGoogleButton() {
+    return SizedBox(
+      height: 52,
+      child: OutlinedButton.icon(
+        onPressed: _isLoading
+            ? null
+            : () async {
+                setState(() {
+                  _isLoading = true;
+                  _errorMessage = null;
+                });
+                final authService = Provider.of<AuthService>(context, listen: false);
+                final error = await authService.signInWithGoogle(role: _selectedRole);
+                setState(() {
+                  _isLoading = false;
+                  _errorMessage = error;
+                });
+              },
+        icon: Image.asset(
+          'assets/google_logo.png',
+          width: 20,
+          height: 20,
+        ),
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: Colors.grey.shade300),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          foregroundColor: AppTheme.textPrimary,
+          backgroundColor: Colors.white,
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        ),
+        label: const Text('Continue with Google'),
+      ),
+    );
+  }
+
   Future<void> _signup() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -519,22 +513,6 @@ class _SignupPageState extends State<SignupPage>
         // User is automatically logged in after signup
       }
     }
-  }
-
-  Future<void> _signUpWithGoogle() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    final authService = Provider.of<AuthService>(context, listen: false);
-    final error = await authService.signInWithGoogle(role: _selectedRole);
-
-    if (!mounted) return;
-    setState(() {
-      _isLoading = false;
-      _errorMessage = error;
-    });
   }
 
 }
