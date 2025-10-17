@@ -70,7 +70,7 @@ class _MechanicHomePageState extends State<MechanicHomePage>
           // Refresh all data
           setState(() {});
         },
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppTheme.secondaryColor,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
       body: Container(

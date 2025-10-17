@@ -306,6 +306,9 @@ class _LoginPageState extends State<LoginPage>
                   backgroundColor: widget.role == 'user' 
                       ? AppTheme.primaryColor 
                       : AppTheme.secondaryColor,
+                  foregroundColor: widget.role == 'user'
+                      ? Colors.black
+                      : Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

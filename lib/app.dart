@@ -7,6 +7,7 @@ import 'user_profile_form.dart';
 import 'mechanic_home_page.dart';
 import 'mechanic_profile_form.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'map_sample.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -20,6 +21,7 @@ class _AppState extends State<App> {
   bool _userHasProfile = false;
   bool _mechanicHasProfile = false;
   String? _lastCheckedUserId;
+  bool _didNavigate = false;
 
   @override
   void initState() {
@@ -71,6 +73,8 @@ class _AppState extends State<App> {
         _checkingProfile = false;
       });
     }
+    // Allow navigation after profile check completes
+    _didNavigate = false;
   }
 
   @override
@@ -94,34 +98,40 @@ class _AppState extends State<App> {
           );
         }
         
-        if (authService.currentUser == null) {
-          // Reset cached state on sign out
-          _lastCheckedUserId = null;
-          _userHasProfile = false;
-          _mechanicHasProfile = false;
-          return const RoleSelectionPage();
+        // Perform navigation via named routes based on state (once per resolution)
+        if (!_didNavigate) {
+          _didNavigate = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            if (authService.currentUser == null) {
+              _lastCheckedUserId = null;
+              _userHasProfile = false;
+              _mechanicHasProfile = false;
+              Navigator.of(context).pushNamedAndRemoveUntil('/role', (route) => false);
+              return;
+            }
+
+            final role = authService.currentUserRole;
+            if (role == 'user') {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                _userHasProfile ? '/user/home' : '/user/profile',
+                (route) => false,
+              );
+            } else if (role == 'mechanic') {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                _mechanicHasProfile ? '/mechanic/home' : '/mechanic/profile',
+                (route) => false,
+              );
+            } else {
+              Navigator.of(context).pushNamedAndRemoveUntil('/role', (route) => false);
+            }
+          });
         }
-        
-        // User is logged in, check their role and redirect accordingly
-        final role = authService.currentUserRole;
-        if (role == 'user') {
-          // For users, check if they have a profile
-          if (_userHasProfile) {
-            return const UserHomePage();
-          } else {
-            return UserProfileForm(isFirstTime: true);
-          }
-        } else if (role == 'mechanic') {
-          // For mechanics, check if they have a profile
-          if (_mechanicHasProfile) {
-            return const MechanicHomePage();
-          } else {
-            return MechanicProfileForm(isFirstTime: true);
-          }
-        } else {
-          // If role is not set, go to role selection
-          return const RoleSelectionPage();
-        }
+
+        // While navigation happens, render a minimal placeholder
+        return const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        );
       },
     );
   }

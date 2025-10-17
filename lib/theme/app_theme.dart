@@ -1,26 +1,29 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Color Palette
-  static const Color primaryColor = Color(0xFF2563EB); // Modern blue
-  static const Color primaryVariant = Color(0xFF1D4ED8);
-  static const Color secondaryColor = Color(0xFF10B981); // Emerald green
-  static const Color secondaryVariant = Color(0xFF059669);
-  static const Color accentColor = Color(0xFFF59E0B); // Amber
+  // Color Palette from provided image
+  // User (light side)
+  static const Color primaryColor = Color(0xFF93B1B5); // #93B1B5
+  static const Color primaryVariant = Color(0xFFB8E3E9); // #B8E3E9
+  // Mechanic (dark side)
+  static const Color secondaryColor = Color(0xFF0B2E33); // #0B2E33
+  static const Color secondaryVariant = Color(0xFF4F7C82); // #4F7C82
+  // Accents and states
+  static const Color accentColor = Color(0xFF4F7C82); // tie accent to mid tone
   static const Color errorColor = Color(0xFFEF4444);
   static const Color warningColor = Color(0xFFF59E0B);
   static const Color successColor = Color(0xFF10B981);
+
+  // Neutrals / background
+  static const Color backgroundColor = Color(0xFF0F0F0F); // Plain dark background
+  static const Color surfaceColor = Color(0xFF1A1A1A);
+  static const Color cardColor = Color(0xFF2A2A2A);
+  static const Color dividerColor = Color(0xFF404040);
   
-  // Neutral Colors
-  static const Color backgroundColor = Color(0xFFF8FAFC);
-  static const Color surfaceColor = Colors.white;
-  static const Color cardColor = Colors.white;
-  static const Color dividerColor = Color(0xFFE2E8F0);
-  
-  // Text Colors
-  static const Color textPrimary = Color(0xFF1E293B);
-  static const Color textSecondary = Color(0xFF64748B);
-  static const Color textTertiary = Color(0xFF94A3B8);
+  // Text Colors (light text for dark background)
+  static const Color textPrimary = Color(0xFFFFFFFF);
+  static const Color textSecondary = Color(0xFFB0B0B0);
+  static const Color textTertiary = Color(0xFF808080);
   
   // Gradient Colors
   static const LinearGradient primaryGradient = LinearGradient(
@@ -36,7 +39,8 @@ class AppTheme {
   );
   
   static const LinearGradient backgroundGradient = LinearGradient(
-    colors: [Color(0xFFF8FAFC), Color(0xFFE2E8F0)],
+    // Plain dark background (solid effect)
+    colors: [backgroundColor, backgroundColor],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
@@ -45,18 +49,18 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.light,
+      brightness: Brightness.dark,
       
       // Color Scheme
-      colorScheme: const ColorScheme.light(
+      colorScheme: const ColorScheme.dark(
         primary: primaryColor,
-        primaryContainer: Color(0xFFDBEAFE),
+        primaryContainer: primaryVariant,
         secondary: secondaryColor,
-        secondaryContainer: Color(0xFFD1FAE5),
+        secondaryContainer: secondaryVariant,
         surface: surfaceColor,
         background: backgroundColor,
         error: errorColor,
-        onPrimary: Colors.white,
+        onPrimary: Colors.black,
         onSecondary: Colors.white,
         onSurface: textPrimary,
         onBackground: textPrimary,
@@ -139,7 +143,7 @@ class AppTheme {
       // Input Decoration Theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.grey[50],
+        fillColor: cardColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: dividerColor),
@@ -165,7 +169,7 @@ class AppTheme {
         hintStyle: const TextStyle(color: textTertiary),
       ),
       
-      // Text Theme
+      // Text Theme (light text for readability on dark background)
       textTheme: const TextTheme(
         displayLarge: TextStyle(
           fontSize: 32,

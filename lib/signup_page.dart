@@ -324,6 +324,9 @@ class _SignupPageState extends State<SignupPage>
                   backgroundColor: _selectedRole == 'user' 
                       ? AppTheme.primaryColor 
                       : AppTheme.secondaryColor,
+                  foregroundColor: _selectedRole == 'user'
+                      ? Colors.black
+                      : Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

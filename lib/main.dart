@@ -6,6 +6,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'auth_service.dart';
 import 'theme/app_theme.dart';
 import 'map_sample.dart';
+import 'role_selection_page.dart';
+import 'user_home_page.dart';
+import 'mechanic_home_page.dart';
+import 'mechanic_profile_form.dart';
+import 'user_profile_form.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
@@ -30,7 +35,16 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'MechanicOnDemand',
         theme: AppTheme.lightTheme,
-        home: const App(),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const App(),
+          '/role': (context) => const RoleSelectionPage(),
+          '/user/home': (context) => const UserHomePage(),
+          '/mechanic/home': (context) => const MechanicHomePage(),
+          '/user/profile': (context) => UserProfileForm(isFirstTime: true),
+          '/mechanic/profile': (context) => const MechanicProfileForm(isFirstTime: true),
+          '/map': (context) => const MapSample(),
+        },
       ),
     );
   }
